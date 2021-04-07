@@ -20,6 +20,5 @@ typedef long double f96 ;
 
 
 #define NULL 	'\0'
-//gv
 
 #endif /* LIB_STD_TYPE_H_ */
