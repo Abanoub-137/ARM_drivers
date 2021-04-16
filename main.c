@@ -1,67 +1,46 @@
-/*
- * main.c
- *
- *  Created on: Nov 30, 2020
- *      Author: Abanoub Kamal
- */
+
 
 #include "STD_TYPES.h"
 #include "BIT_MATH.h"
 
-#include "RCC_interface.h"
-#include "GPIO_interface.h"
-#include "STK_interface.h"
+#include "MRCC_interface.h"
+#include "MPORT_interface.h"
+#include "MGPIO_interface.h"
+#include "MNVIC_interface.h"
 
-#include "STK_private.h"
+#include "MUSART1_interface.h"
+#include "HESP8266_interface.h"
 
-#include "LED_interface.h"
-#include "LED_private.h"
-#include "LED_config.h"
+u8 LOC_u8Data ;
 
+int main (void){
 
-/* Led Animations */
-void main(void)
-{
-	/* System clock */
-	MRCC_voidInitSysClock();
-	/* Clock of pins */
-	MRCC_voidEnableClock(RCC_APB2 , RCC_IOPA_EN);
+	/*  Initializing RCC With HSE Crystal Oscillator 8MHZ */
+	MRCC_enumInitSysClock();
+	/* Enable The Clock Of GPIOA */
+	MRCC_enumEnablePerClock( MRCC_APB2 , MRCC_GPIOA );
+	/* Enable The Clock Of SPI1 */
+	MRCC_enumEnablePerClock( MRCC_APB2 , MRCC_USART1 );
+	/* Initialize EXTI PIN0 as Input Floating */
+	MPORT_voidInit();
+	/* Initialize NVIC */
+	MNVIC_voidInit();
+	/* Enable USART1 From NVIC */
+	MNVIC_voidEnablePeripheral( MNVIC_USART1 );
+	/* Initialize USART1 */
+	MUSART1_voidInit();
+	/* Initialize ESP8266 */
+	HESP8266_voidInit();
+	/* Connecting To Wifi Network */
+	HESP8266_voidConnectToWiFi((u8 *)"mostafa 2020",(u8 *)"ZXC  DSA");
 
-	MSTK_voidInit();
+	while(1){
 
-	/* initialize the pins direction */
-	HLED_voidInitLed(GPIO_PORTA , GPIO_PIN0);
-	HLED_voidInitLed(GPIO_PORTA , GPIO_PIN1);
-	HLED_voidInitLed(GPIO_PORTA , GPIO_PIN2);
-	HLED_voidInitLed(GPIO_PORTA , GPIO_PIN3);
-	HLED_voidInitLed(GPIO_PORTA , GPIO_PIN4);
-	HLED_voidInitLed(GPIO_PORTA , GPIO_PIN5);
-	HLED_voidInitLed(GPIO_PORTA , GPIO_PIN6);
-	HLED_voidInitLed(GPIO_PORTA , GPIO_PIN7);
+		HESP8266_voidConnectToSrvTcp((u8 *)"162.253.155.226" , (u8 *)"80");
+		LOC_u8Data = HESP8266_u8ReceiveHttpReq( (u8 *)"asmaa.6te.net" , (u8 *)"36" ) ;
+		MGPIO_enumSetPinValue( MGPIO_u8_PORTA , MGPIO_u8_PIN0 , LOC_u8Data - 48 );
 
-
-
-	while(1)
-	{
-		u8 Local_u8Count=0;
-		/* 4 times shift leds */
-		for( ; Local_u8Count < 4 ; Local_u8Count++)
-		{
-			HLED_voidPingPong(GPIO_PORTA , GPIO_PIN0 , GPIO_PIN7);
-		}
-		MSTK_voidSetBusyWait(500000);
-		/* 4 times fatahy ya warda and ghamady ya warda */
-		for( Local_u8Count=0 ; Local_u8Count < 4 ; Local_u8Count++)
-		{
-			HLED_voidFatahyYaWarda(GPIO_PORTA , GPIO_PIN0 , GPIO_PIN7);
-		}
-		MSTK_voidSetBusyWait(500000);
-		/* 8 times flash */
-		for( Local_u8Count=0 ; Local_u8Count < 8 ; Local_u8Count++)
-		{
-			HLED_voidFlashLed(GPIO_PORTA , GPIO_PIN0 , GPIO_PIN7);
-		}
-		MSTK_voidSetBusyWait(500000);
 	}
+
 }
 
