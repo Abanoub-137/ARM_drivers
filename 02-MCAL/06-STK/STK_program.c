@@ -26,6 +26,8 @@ void MSTK_voidInit(void)
 	STK->CTRL = 0x00000000;
 	#elif STK_SOURCE_CLOCK == STK_AHB_CLK
 	STK->CTRL = 0x00000004;
+	#else
+		#warning "Wrong Systick Clock Configuration"
 	#endif
 }
 

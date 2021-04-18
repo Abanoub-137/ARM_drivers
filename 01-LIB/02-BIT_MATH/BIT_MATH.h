@@ -13,6 +13,13 @@
 #define TOG_BIT( data , bit )	   		( data ^= (1 << bit) )
 
 
+typedef enum{
+
+	NOK,
+	OK,
+
+}error_status;
+
 
 #endif /* BIT_MATH_H_ */
 

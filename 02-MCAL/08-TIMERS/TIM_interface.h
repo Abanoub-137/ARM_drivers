@@ -1,12 +1,51 @@
-/************************************************************************/
-/*	Author		:	Abanoub Kamal                                       */
-/* 	Version		:	V01													*/
-/*	Date		: 	26 JAN 2021											*/
-/*  NOTE		:  	calculations is set take into account that
-					CLOCK SOURCE = AHB/8								*/
-/************************************************************************/
-#ifndef STK_INTERFACE_H
-#define STK_INTERFACE_H
+/************************************************************************************/
+/*	Author		:	Abanoub Kamal                                       			*/
+/* 	Version		:	V01																*/
+/*	Date		: 	4 April 2021													*/
+/* 	Notes		:	# we use TIM2 for busy wait as timer 6 is 32 bits counter
+					# TIM2 & TIM5 is 32 bits counter
+					# our calculation is depend on AHB CLK =8MHz and so APB CLK = 8MHz
+					# */
+/************************************************************************************/
+#ifndef TIM_INTERFACE_H
+#define TIM_INTERFACE_H
+
+
+
+/***********************************************************************
+ * Description: synchronous function.
+ *				stuck the processor for time equal number of ms.
+ *
+ * Inputs     :	Copy_u32MsNumber		range		: 1 ~ (2^32)
+ *										description : number of ms
+ * return     :	void
+ * scope      :	public
+ **********************************************************************/
+void MTIM2_voidSetBusyWaitMs(u32 Copy_u32MsNumber);
+
+/***********************************************************************
+ * Description: synchronous function.
+ *				stuck the processor for time equal number of us.
+ *
+ * Inputs     :	Copy_u32UsNumber		range		: 1 ~ (2^32)
+ *										description : number of us
+ * return     :	void
+ * scope      :	public
+ **********************************************************************/
+void MTIM2_voidSetBusyWaitUs(u32 Copy_u32UsNumber);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /***********************************************************************
@@ -17,20 +56,20 @@
  * return     :	void
  * scope      :	public
  **********************************************************************/
-void MSTK_voidInit(void);
+void MTIM_voidInit(void);
+
 
 /***********************************************************************
  * Description: synchronous function.
  *				stuck the processor for time equal number of ticks 
- *				entered multibly time of one tick (tick time = 1us).
-				calculations is set take into account that CLOCK SOURCE = AHB/8
-
+ *				entered multibly time of one tick.
+ *
  * Inputs     :	Copy_32Ticks			range		: 0 ~ (2^24 -1)
  *										description : number of ticks
  * return     :	void
  * scope      :	public
  **********************************************************************/
-void MSTK_voidSetBusyWait(u32 Copy_32Ticks );
+void MTIM_voidSetBusyWait(u32 Copy_32Ticks );
 
 /***********************************************************************
  * Description: Asynchronous function.
@@ -44,7 +83,7 @@ void MSTK_voidSetBusyWait(u32 Copy_32Ticks );
  * return     :	void
  * scope      :	public
  **********************************************************************/
-void MSTK_voidSetIntervalSingle(u32 Copy_32Ticks , void (*Copy_ptr)(void) );
+void MTIM_voidSetIntervalSingle(u32 Copy_32Ticks , void (*Copy_ptr)(void) );
 
 /***********************************************************************
  * Description: Asynchronous function.
@@ -58,7 +97,7 @@ void MSTK_voidSetIntervalSingle(u32 Copy_32Ticks , void (*Copy_ptr)(void) );
  * return     :	void
  * scope      :	public
  **********************************************************************/
-void MSTK_voidSetIntervalPeriodic(u32 Copy_32Ticks , void (*Copy_ptr)(void) );
+void MTIM_voidSetIntervalPeriodic(u32 Copy_32Ticks , void (*Copy_ptr)(void) );
 
 /***********************************************************************
  * Description: this function to stop the timer (SysTick)  
@@ -68,7 +107,7 @@ void MSTK_voidSetIntervalPeriodic(u32 Copy_32Ticks , void (*Copy_ptr)(void) );
  * return     :	void
  * scope      :	public
  **********************************************************************/
-void MSTK_voidStopInterval(void);
+void MTIM_voidStopInterval(void);
 
 /***********************************************************************
  * Description: to fined the time consumed since the timer start counting 
@@ -77,7 +116,7 @@ void MSTK_voidStopInterval(void);
  * return     :	u32
  * scope      :	public
  **********************************************************************/
-u32 MSTK_u32GetElapsedTime(void);
+u32 MTIM_u32GetElapsedTime(void);
 
 /***********************************************************************
  * Description: to find the time remaining till the timer firing interrupt  
@@ -87,7 +126,7 @@ u32 MSTK_u32GetElapsedTime(void);
  * return     :	u32
  * scope      :	public
  **********************************************************************/
-u32 MSTK_u32GetRemainingTime(void); 
+u32 MTIM_u32GetRemainingTime(void); 
 
 
 
