@@ -101,7 +101,7 @@ void MGPIO_voidSetPinValue(u8 Copy_u8Port , u8 Copy_u8Pin , u8 Copy_u8Value);
  * return     :	void
  * scope      :	public
  **********************************************************************/
-u8 MGPIO_voidGetPinValue(u8 Copy_u8Port , u8 Copy_u8Pin);
+u8 MGPIO_u8GetPinValue(u8 Copy_u8Port , u8 Copy_u8Pin);
 
 
 void MGPIO_u8LockPinMode(u8 Copy_u8Port , u8 Copy_u8Pin);

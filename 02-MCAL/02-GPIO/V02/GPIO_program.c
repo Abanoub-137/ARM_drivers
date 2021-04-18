@@ -119,7 +119,7 @@ void MGPIO_voidSetPinValue(u8 Copy_u8Port , u8 Copy_u8Pin , u8 Copy_u8Value)
 }
 
 
-u8 MGPIO_voidGetPinValue(u8 Copy_u8Port , u8 Copy_u8Pin)
+u8 MGPIO_u8GetPinValue(u8 Copy_u8Port , u8 Copy_u8Pin)
 {
 	u8 Local_u8Reselt ;
 	switch(Copy_u8Port)
