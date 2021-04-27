@@ -7,6 +7,12 @@
 #define TIM_PRIVATE_H
 
 
+#define TRUE	1
+#define FALSE 	0
+#define STK_SINGLE_INTERVAL		0
+#define STK_PERIODIC_INTERVAL	1
+
+
 typedef struct
 {
 	volatile u32 CR1;
@@ -36,27 +42,12 @@ typedef struct
 
 
 /*************************************************************************/
-/*							basic TIMERS								 */
-/*************************************************************************/
-/* Base address of TIM6 = 0x40001000 */		// APB1
-/* Base address of TIM7 = 0x40001400 */		// APB1
-
-/* Pointer to struct of Register of TIMER 6 */
-#define TIM6    ( (TIMER_t *)0x40001000 )
-/* Pointer to struct of Register of TIMER 7 */
-#define TIM7    ( (TIMER_t *)0x40001400 )
-/*************************************************************************/
 /*					    	general perpose TIMERS						 */
 /*************************************************************************/
 /* Base address of TIM2 = 0x40000000 */		// APB1
 /* Base address of TIM3 = 0x40000400 */		// APB1
 /* Base address of TIM4 = 0x40000800 */		// APB1
 /* Base address of TIM5 = 0x40000C00 */		// APB1
-
-/* Base address of TIM10 = 0x40015000 */    // APB2
-/* Base address of TIM11 = 0x40015400 */	// APB2
-/* Base address of TIM13 = 0x40001C00 */	// APB1
-/* Base address of TIM14 = 0x40002000 */	// APB1
 
 /* Pointer to struct of Register of TIMER 2 */
 #define TIM2    ( (TIMER_t *)0x40000000 )
@@ -66,25 +57,15 @@ typedef struct
 #define TIM4    ( (TIMER_t *)0x40000800 )
 /* Pointer to struct of Register of TIMER 5 */
 #define TIM5    ( (TIMER_t *)0x40000C00 )
-/* Pointer to struct of Register of TIMER 10 */
-#define TIM10    ( (TIMER_t *)0x40015000 )
-/* Pointer to struct of Register of TIMER 11 */
-#define TIM11    ( (TIMER_t *)0x40015400 )
-/* Pointer to struct of Register of TIMER 13 */
-#define TIM13    ( (TIMER_t *)0x40001C00 )
-/* Pointer to struct of Register of TIMER 14 */
-#define TIM14    ( (TIMER_t *)0x40002000 )
+
 
 /*************************************************************************/
-/*							advanced TIMERS								 */
+/*							advanced TIMER								 */
 /*************************************************************************/
 /* Base address of TIM1 = 0x40012C00 */		// APB2
-/* Base address of TIM8 = 0x40013400 */		// APB2
 
 /* Pointer to struct of Register of TIMER 1 */
 #define TIM1    ( (TIMER_t *)0x40012C00 )
-/* Pointer to struct of Register of TIMER 8 */
-#define TIM8    ( (TIMER_t *)0x40013400 )
 
 
 #endif

@@ -2,18 +2,26 @@
 /*	Author		:	Abanoub Kamal                                       			*/
 /* 	Version		:	V01																*/
 /*	Date		: 	4 April 2021													*/
-/* 	Notes		:	# we use TIM2 for busy wait as timer 6 is 32 bits counter
-					# TIM2 & TIM5 is 32 bits counter
-					# our calculation is depend on AHB CLK =8MHz and so APB CLK = 8MHz
-					# */
+/* 	Notes		:	# all our timers are 16 bits counter
+					# we use TIM2 for busy wait, and our calculation is depend on
+					  AHB CLK =8MHz and so APB CLK = 8MHz
+					# we use TIM3 for Asynchronous functions
+					  (execute a function after a specific time only once,
+					   execute a function periodically every a specific time,
+					    )
+					# TIM1 No remap (ETR/PA12, CH1/PA8, CH2/PA9, CH3/PA10, CH4/PA11, BKIN/PB12,
+					  	  	  	  	  CH1N/PB13, CH2N/PB14, CH3N/PB15)
+					# TIM2 No remap (CH1/ETR/PA0, CH2/PA1, CH3/PA2, CH4/PA3)
+					# TIM3 No remap (CH1/PA6, CH2/PA7, CH3/PB0, CH4/PB1)
+					# TIM4 No remap (TIM4_CH1/PB6, TIM4_CH2/PB7, TIM4_CH3/PB8, TIM4_CH4/PB9)
+					*/
 /************************************************************************************/
 #ifndef TIM_INTERFACE_H
 #define TIM_INTERFACE_H
 
 
-
 /***********************************************************************
- * Description: synchronous function.
+ * Description: synchronous function. using TIM2.
  *				stuck the processor for time equal number of ms.
  *
  * Inputs     :	Copy_u32MsNumber		range		: 1 ~ (2^32)
@@ -24,109 +32,119 @@
 void MTIM2_voidSetBusyWaitMs(u32 Copy_u32MsNumber);
 
 /***********************************************************************
- * Description: synchronous function.
+ * Description: synchronous function. using TIM2.
+ *				stuck the processor for time equal number of ms.
+ *				this function give accurate delay with ms
+ *
+ * Inputs     :	Copy_u32MsNumber		range		: 1 ~ 8000
+ *										description : number of ms
+ * return     :	void
+ * scope      :	public
+ **********************************************************************/
+void MTIM2_voidSetBusyWaitAccurateMs(u32 Copy_u32MsNumber);
+
+/***********************************************************************
+ * Description: synchronous function. using TIM2.
  *				stuck the processor for time equal number of us.
  *
- * Inputs     :	Copy_u32UsNumber		range		: 1 ~ (2^32)
+ * Inputs     :	Copy_u32UsNumber		range		: 1 ~ 30000
  *										description : number of us
  * return     :	void
  * scope      :	public
  **********************************************************************/
 void MTIM2_voidSetBusyWaitUs(u32 Copy_u32UsNumber);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /***********************************************************************
- * Description: Apply clock choice from configuration file 
- *				Disable systick interrupt
- *				Disable systick 	
- * Inputs     :	void
- * return     :	void
- * scope      :	public
- **********************************************************************/
-void MTIM_voidInit(void);
-
-
-/***********************************************************************
- * Description: synchronous function.
- *				stuck the processor for time equal number of ticks 
- *				entered multibly time of one tick.
- *
- * Inputs     :	Copy_32Ticks			range		: 0 ~ (2^24 -1)
- *										description : number of ticks
- * return     :	void
- * scope      :	public
- **********************************************************************/
-void MTIM_voidSetBusyWait(u32 Copy_32Ticks );
-
-/***********************************************************************
- * Description: Asynchronous function.
- *				this function take function name to excute it after a time
+ * Description: Asynchronous function. using TIM3.
+ *				this function take function name to execute it after a time
  *				interval equal (tick time * time of one tick)
  *
- * Inputs     :	Copy_32Ticks				range		: 0 ~ (2^24 -1)
- *											description : number of ticks 
- *				
- * 				void (*Copy_ptr)(void)		value	: function name  
- * return     :	void
- * scope      :	public
- **********************************************************************/
-void MTIM_voidSetIntervalSingle(u32 Copy_32Ticks , void (*Copy_ptr)(void) );
-
-/***********************************************************************
- * Description: Asynchronous function.
- *				this function take function name to excute it after a time
- *				interval equal (tick time * time of one tick) and repeat it periodicaly
+ * Inputs     :	Copy_32Ticks				range		: 0 ~ (65535)
+ *											description : number of ticks
  *
- * Inputs     :	Copy_32Ticks				range		: 0 ~ (2^24 -1)
- *											description : number of ticks 
- *				
- * 				void (*Copy_ptr)(void)		value	: function name 
+ * 				void (*Copy_ptr)(void)		value	: function name
  * return     :	void
  * scope      :	public
  **********************************************************************/
-void MTIM_voidSetIntervalPeriodic(u32 Copy_32Ticks , void (*Copy_ptr)(void) );
+void MTIM3_voidSetIntervalSingle(u16 Copy_16Ticks , void (*Copy_ptr)(void) );
 
 /***********************************************************************
- * Description: this function to stop the timer (SysTick)  
- *				and lock its interrupt
+ * Description: Asynchronous function. using TIM3.
+ *				this function take function name to execute it after a time
+ *				interval equal (tick time * time of one tick) periodically.
+ *
+ * Inputs     :	Copy_32Ticks				range		: 0 ~ (65535)
+ *											description : number of ticks
+ *
+ * 				void (*Copy_ptr)(void)		value	: function name
+ * return     :	void
+ * scope      :	public
+ **********************************************************************/
+void MTIM3_voidSetIntervalPeriodic(u16 Copy_16Ticks , void (*Copy_ptr)(void) );
+
+/***********************************************************************
+ * Description: to fined the time consumed since the timer 3 start counting
+ *				using TIM3.
+ *
+ * Inputs     :	void
+ * return     :	u16							description : number of ticks counted
+ * 														  after the timer started
+ * scope      :	public
+ **********************************************************************/
+u16 MTIM3_u16GetElapsedTime(void);
+
+/***********************************************************************
+ * Description: to find the time remaining till the timer 3 firing interrupt
+ *				and do something. using TIM3.
+ *
+ * Inputs     :	void
+ * return     :	u16							description : number of ticks to be counted
+ * 														  till the timer firing interrupt
+ * scope      :	public
+ **********************************************************************/
+u16 MTIM3_u16GetRemainingTime(void);
+
+/***********************************************************************
+ * Description: this function to stop the timer 3
+ *				and lock its interrupt. using TIM3.
  *				
  * Inputs     :	void
  * return     :	void
  * scope      :	public
  **********************************************************************/
-void MTIM_voidStopInterval(void);
+void MTIM3_voidStopInterval(void);
 
 /***********************************************************************
- * Description: to fined the time consumed since the timer start counting 
- *				
+ * Description: #these two functions to measure the frequency of PWM signal
+ * 				#we use the first one in initialization part from the code before while(1),
+ * 				 and the second one used inside the app ( inside while(1) ).
+ * 				#the first return ( from MTIM4_f32Ch1MeasurePWM ) is not correct as
+ * 				 the timer counter start count in initialization part and we call it
+ * 				 after a time. but after first return it will return correct frequency.
+ *
  * Inputs     :	void
- * return     :	u32
+ * return     :	f32
  * scope      :	public
  **********************************************************************/
-u32 MTIM_u32GetElapsedTime(void);
+void MTIM4_f32Ch1InitMeasurePWM(void);
+f32 MTIM4_f32Ch1MeasurePWM(void);
 
 /***********************************************************************
- * Description: to find the time remaining till the timer firing interrupt  
- *				and do something
- *				
+ * Description: #these two functions to measure the Time On signal
+ * 				#we use the first one in initialization part from the code before while(1),
+ * 				 and the second one used inside the app ( inside while(1) ).
+ * 				#the first return ( from MTIM1_f32Ch1Ch2MeasureTonPeriod ) is not correct.
+ * 				but after first return it will return correct Time.
+ *
  * Inputs     :	void
- * return     :	u32
+ * return     :	f32
  * scope      :	public
  **********************************************************************/
-u32 MTIM_u32GetRemainingTime(void); 
+void MTIM1_f32Ch1Ch2InitMeasureTonPeriod(void);
+f32 MTIM1_f32Ch1Ch2MeasureTonPeriod(void);
+
+
+void MTIM3_voidSetCh1PWM(f32 Copy_f32PulseWidth , f32 Copy_f32DutySycle);
 
 
 
