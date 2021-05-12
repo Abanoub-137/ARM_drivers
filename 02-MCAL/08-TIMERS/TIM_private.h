@@ -7,10 +7,20 @@
 #define TIM_PRIVATE_H
 
 
-#define TRUE	1
-#define FALSE 	0
-#define STK_SINGLE_INTERVAL		0
-#define STK_PERIODIC_INTERVAL	1
+#define TRUE					1
+#define FALSE 					0
+
+#define TIM3_SINGLE_INTERVAL	0
+#define TIM3_PERIODIC_INTERVAL	1
+
+#define TIM4_GENERATE_PWM		0
+#define TIM4_READ_PWM			1
+
+#define TIM4_CHANNEL_1			0
+#define TIM4_CHANNEL_2			1
+#define TIM4_CHANNEL_3			2
+#define TIM4_CHANNEL_4			3
+
 
 
 typedef struct

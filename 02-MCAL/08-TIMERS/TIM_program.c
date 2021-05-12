@@ -88,6 +88,8 @@ void MTIM2_voidSetBusyWaitUs(u32 Copy_u32UsNumber)
 }
 
 
+
+
 void MTIM3_voidSetIntervalSingle(u16 Copy_16Ticks , void (*Copy_ptr)(void) )
 {
 	/* configer the timer */
@@ -102,7 +104,7 @@ void MTIM3_voidSetIntervalSingle(u16 Copy_16Ticks , void (*Copy_ptr)(void) )
 	TIM3_CallBack = Copy_ptr;
 
 	/* Set Mode to Single */
-	TIM3_u8ModeOfInterval = STK_SINGLE_INTERVAL;
+	TIM3_u8ModeOfInterval = TIM3_SINGLE_INTERVAL;
 
 	/* enable the interrupt */
 	SET_BIT(TIM3->DIER , 0);
@@ -123,7 +125,7 @@ void MTIM3_voidSetIntervalPeriodic(u16 Copy_16Ticks , void (*Copy_ptr)(void) )
 	TIM3_CallBack = Copy_ptr;
 
 	/* Set Mode to periodic */
-	TIM3_u8ModeOfInterval = STK_PERIODIC_INTERVAL;
+	TIM3_u8ModeOfInterval = TIM3_PERIODIC_INTERVAL;
 
 	/* enable the interrupt */
 	SET_BIT(TIM3->DIER , 0);
@@ -153,11 +155,67 @@ void MTIM3_voidStopInterval(void)
 }
 
 
+
+
+void MTIM1_f32Ch1Ch2InitMeasureTonPeriod(void)
+{
+	/* configer the timer */
+	TIM1->PSC = TIM1_PRESCALER -1;		// Set the prescaler
+	TIM1->ARR = 0xFFFF;					// set ARR for max value
+	TIM1->CNT = 0 ;						// Clear counter
+
+	/* capture is done ---> CH1 is rising edge and CH2 is falling edge */
+	TIM1->CCER &=  ~0x2;
+	TIM1->CCER |=  0x20;
+	/* configure CH1 as direct input TI1 & CH2 as indirect input TI2 */
+	//TIM1->CCMR1 |=  0x1;	//TIM1->CCMR1 &= ~0x2;
+	//TIM1->CCMR1 &= ~0x10;	//TIM1->CCMR1 |=  0x20;
+	/* no prescaler, capture is done each time an edge is detected on the capture input --> on CH1 & CH2 */
+	//TIM1->CCMR1 &= ~0xC;	//TIM1->CCMR1 &= ~0xC00;
+	/* No filter, sampling is done at fDTS --> on CH1 & CH2 */
+	//TIM1->CCMR1 &= ~0xF0;	//TIM1->CCMR1 &= ~0xF000;
+	TIM1->CCMR1 = 0x0201;
+
+	/* configure the timer slave mode with TI1FP1 as reset signal */
+	TIM1->SMCR = 0x54;
+
+	/* Capture enable for CH1 & CH2 */
+	TIM1->CCER |=  0x11;
+	/* counter enable */
+	TIM1->CR1  |= 0x1;
+	/* interrupt enable for CH1 & CH2 */
+	TIM1->DIER  |= 0x6;
+
+} // end of function
+
+
+f32 MTIM1_f32Ch1Ch2MeasureTonPeriod(void)
+{
+	volatile u16 Local_u16Capture;
+	f32 Local_f32Timer1ClockResolution;
+	volatile f32 Local_f32UserSignalTimeOnPeriod =0;
+
+	if(Global_u8Tim1Ch1IsCaptureDone)
+	{
+		Local_u16Capture = Global_u16Tim1Ch1InputCaptures[1];
+
+		Local_f32Timer1ClockResolution = 1.0/TIM1_CNT_CLK;
+		Local_f32UserSignalTimeOnPeriod = Local_u16Capture * Local_f32Timer1ClockResolution;
+
+		Global_u8Tim1Ch1IsCaptureDone = FALSE;
+	}
+	return Local_f32UserSignalTimeOnPeriod;
+}
+
+
+
+
+
 void MTIM4_f32Ch1InitMeasurePWM(void)
 {
 	/* configer the timer */
 	TIM4->PSC = TIM4_PRESCALER -1;		// Set the prescaler
-	TIM4->ARR = 0xFFFF;					//
+	TIM4->ARR = 0xFFFF;					// for maximum value to let us free in design
 	TIM4->CNT = 0 ;						// Clear counter
 
 	/* configure channel is configured as input,  IC1 is mapped on TI1 */
@@ -210,54 +268,103 @@ f32 MTIM4_f32Ch1MeasurePWM(void)
 
 
 
-void MTIM1_f32Ch1Ch2InitMeasureTonPeriod(void)
+void MTIM4_voidSetPWM(f32 Copy_f32Period , f32 Copy_f32DutySycle , u8 Copy_u8Channel)
 {
-	/* configer the timer */
-	TIM1->PSC = TIM1_PRESCALER -1;		// Set the prescaler
-	TIM1->ARR = 0xFFFF;					// set ARR for max value
-	TIM1->CNT = 0 ;						// Clear counter
-
-	/* capture is done ---> CH1 is rising edge and CH2 is falling edge */
-	TIM1->CCER &=  ~0x2;
-	TIM1->CCER |=  0x20;
-	/* configure CH1 as direct input TI1 & CH2 as indirect input TI2 */
-	//TIM1->CCMR1 |=  0x1;	//TIM1->CCMR1 &= ~0x2;
-	//TIM1->CCMR1 &= ~0x10;	//TIM1->CCMR1 |=  0x20;
-	/* no prescaler, capture is done each time an edge is detected on the capture input --> on CH1 & CH2 */
-	//TIM1->CCMR1 &= ~0xC;	//TIM1->CCMR1 &= ~0xC00;
-	/* No filter, sampling is done at fDTS --> on CH1 & CH2 */
-	//TIM1->CCMR1 &= ~0xF0;	//TIM1->CCMR1 &= ~0xF000;
-	TIM1->CCMR1 = 0x0201;
-
-	/* configure the timer slave mode with TI1FP1 as reset signal */
-	TIM1->SMCR = 0x54;
-
-	/* Capture enable for CH1 & CH2 */
-	TIM1->CCER |=  0x11;
-	/* counter enable */
-	TIM1->CR1  |= 0x1;
-	/* interrupt enable for CH1 & CH2 */
-	TIM1->DIER  |= 0x6;
-}
-
-
-f32 MTIM1_f32Ch1Ch2MeasureTonPeriod(void)
-{
-	volatile u16 Local_u16Capture;
-	f32 Local_f32Timer1ClockResolution;
-	volatile f32 Local_f32UserSignalTimeOnPeriod =0;
-
-	if(Global_u8Tim1Ch1IsCaptureDone)
+	switch(Copy_u8Channel)
 	{
-		Local_u16Capture = Global_u16Tim1Ch1InputCaptures[1];
+	case TIM4_CHANNEL_1:/* To initialization */
+						TIM4->PSC = TIM4_PRESCALER-1;
+						/* 3. Program the period and the duty cycle respectively in ARR and CCRx registers */
+							TIM4->ARR  = (Copy_f32Period * TIM4_CNT_CLK) -1;  // ARR = Period / ( T of one count ) --> Clk = AHB_Clk / PSC
+							TIM4->CCR1 = (Copy_f32Period * (Copy_f32DutySycle / 100) ) * TIM4_CNT_CLK ;  // CCR1 = Ton / ( T of one count )
+						/* 5. Select the counting mode:
+						   a) PWM edge-aligned mode: the counter must be configured up-counting or downcounting
+						   b) PWM center aligned mode: the counter mode must be center aligned counting
+						   mode (CMS bits different from '00'). */
+							TIM4->CR1 &= ~0x70;  // PWM edge-aligned mode & up-counting
 
-		Local_f32Timer1ClockResolution = 1.0/TIM1_CNT_CLK;
-		Local_f32UserSignalTimeOnPeriod = Local_u16Capture * Local_f32Timer1ClockResolution;
+						/* To configure the timer in this mode: */
+						/* 1. Configure the output pin:
+						 * a) Select the output mode by writing CCS bits in CCMRx register */
+							TIM4->CCMR1 &= ~0x3 ;
+						/* b) Select the polarity by writing the CCxP bit in CCER register. CC1P=0 */
+							TIM4->CCER &= ~0x2 ;
+						/* 2. Select the PWM mode (PWM1 or PWM2) by writing OCxM bits in CCMRx register. PWM1 is choosed */
+							TIM4->CCMR1 &= ~0x70;
+							TIM4->CCMR1 |= 0x60;
 
-		Global_u8Tim1Ch1IsCaptureDone = FALSE;
-	}
-	return Local_f32UserSignalTimeOnPeriod;
-}
+						/* 6. Enable the capture compare */
+							SET_BIT(TIM4->CCER , 0);
+						/* 7. Enable the counter. */
+							TIM4->CNT = 0 ; 			// Clear timer counter
+							SET_BIT(TIM4->CR1 , 0);
+						break;
+
+	case TIM4_CHANNEL_2:/* To initialization & configuration */
+						TIM4->PSC = TIM4_PRESCALER-1;
+
+						TIM4->ARR  = (Copy_f32Period * TIM4_CNT_CLK) -1;  // ARR = Period / ( T of one count ) --> Clk = AHB_Clk / PSC
+						TIM4->CCR2 = (Copy_f32Period * (Copy_f32DutySycle / 100) ) * TIM4_CNT_CLK ;  // CCR1 = Ton / ( T of one count )
+
+						TIM4->CR1 &= ~0x70;  // PWM edge-aligned mode & up-counting
+
+						TIM4->CCMR1 &= ~0x300 ; // output mode
+
+						TIM4->CCER &= ~0x20 ; // polarity selected active high
+
+						TIM4->CCMR1 &= ~0x7000; // PWM1 mode
+						TIM4->CCMR1 |= 0x6000;
+
+						SET_BIT(TIM4->CCER , 4); // Enable the capture compare
+
+						TIM4->CNT = 0 ; // Clear timer counter
+						SET_BIT(TIM4->CR1 , 0); // Enable the counter
+						break;
+
+	case TIM4_CHANNEL_3:/* To initialization & configuration */
+						TIM4->PSC = TIM4_PRESCALER-1;
+
+						TIM4->ARR  = (Copy_f32Period * TIM4_CNT_CLK) -1;  // ARR = Period / ( T of one count ) --> Clk = AHB_Clk / PSC
+						TIM4->CCR3 = (Copy_f32Period * (Copy_f32DutySycle / 100) ) * TIM4_CNT_CLK ;  // CCR1 = Ton / ( T of one count )
+
+						TIM4->CR1 &= ~0x70;  // PWM edge-aligned mode & up-counting
+
+						TIM4->CCMR2 &= ~0x3 ; // output mode
+
+						TIM4->CCER &= ~0x200 ; // polarity selected active high
+
+						TIM4->CCMR2 &= ~0x70; // PWM1 mode
+						TIM4->CCMR2 |= 0x60;
+
+						SET_BIT(TIM4->CCER , 8); // Enable the capture compare
+
+						TIM4->CNT = 0 ; // Clear timer counter
+						SET_BIT(TIM4->CR1 , 0); // Enable the counter
+						break;
+
+	case TIM4_CHANNEL_4:/* To initialization & configuration */
+						TIM4->PSC = TIM4_PRESCALER-1;
+
+						TIM4->ARR  = (Copy_f32Period * TIM4_CNT_CLK) -1;  // ARR = Period / ( T of one count ) --> Clk = AHB_Clk / PSC
+						TIM4->CCR4 = (Copy_f32Period * (Copy_f32DutySycle / 100) ) * TIM4_CNT_CLK ;  // CCR1 = Ton / ( T of one count )
+
+						TIM4->CR1 &= ~0x70;  // PWM edge-aligned mode & up-counting
+
+						TIM4->CCMR2 &= ~0x300 ; // output mode
+
+						TIM4->CCER &= ~0x2000 ; // polarity selected active high
+
+						TIM4->CCMR2 &= ~0x7000; // PWM1 mode
+						TIM4->CCMR2 |= 0x6000;
+
+						SET_BIT(TIM4->CCER , 12); // Enable the capture compare
+
+						TIM4->CNT = 0 ; // Clear timer counter
+						SET_BIT(TIM4->CR1 , 0); // Enable the counter
+
+	} // end switch case
+} // end the function
+
 
 
 
@@ -271,26 +378,27 @@ void TIM3_IRQHandler(void)
 {
 
 	/* to ensure that IRQ done only one time (single interval) */
-	if(STK_SINGLE_INTERVAL == TIM3_u8ModeOfInterval)
+	if(TIM3_SINGLE_INTERVAL == TIM3_u8ModeOfInterval)
 	{
 		/* Disable the interrupt */
 		CLR_BIT(TIM3->DIER , 0);
 		/* disable the timer */
-		TIM2->CR1 = 0;
+		TIM3->CR1 = 0;
 	}
 
 	/* execute the required function passed from the main.c file */
 	TIM3_CallBack();
 
 	/* clear the flag */
-	CLR_BIT(TIM2->SR , 0);
+	CLR_BIT(TIM3->SR , 0);
 
 }
 
 
-/* used for input capture mode to read frequency and time period for a user signal */
+/* used for input capture mode to read frequency and time period for a user signal (measure PWM signal) */
 void TIM4_IRQHandler(void)
 {
+#if TIM4_USAGE == TIM4_READ_PWM
 	if(! Global_u8Tim4Ch1IsCaptureDone)
 	{
 		if(1 == Global_u8Tim4Ch1Counter)
@@ -305,6 +413,7 @@ void TIM4_IRQHandler(void)
 			Global_u8Tim4Ch1IsCaptureDone = TRUE;
 		}
 	}
+#endif
 }
 
 
@@ -324,70 +433,5 @@ void TIM1_CC_IRQHandler(void)
 			Global_u8Tim1Ch1IsCaptureDone = TRUE;
 		}
 	}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void MTIM3_voidSetCh1PWM(f32 Copy_f32PulseWidth , f32 Copy_f32DutySycle)
-{
-	TIM2->PSC = 800-1;
-	/* To configure the timer in this mode: */
-	/* 1. Configure the output pin:
-	 * a) Select the output mode by writing CCS bits in CCMRx register */
-		TIM3->CCMR1 &= ~0x3 ;
-	/* b) Select the polarity by writing the CCxP bit in CCER register. CC1P=0 */
-		TIM3->CCER &= ~0x2 ;
-	/* 2. Select the PWM mode (PWM1 or PWM2) by writing OCxM bits in CCMRx register. PWM1 is choosed */
-		TIM3->CCMR1 &= ~0x70;
-		TIM3->CCMR1 |= 0x60;
-	/* 3. Program the period and the duty cycle respectively in ARR and CCRx registers */
-		TIM3->ARR = (Copy_f32PulseWidth * 10000) -1;  // ARR = PW * Clk --> Clk = AHB_Clk / PSC
-		TIM3->CCR1 = (Copy_f32PulseWidth * 10000) * Copy_f32DutySycle ;  // CCR1 = ARR * Duty Sycle
-	/* 4. Set the preload bit in CCMRx register and the ARPE bit in the CR1 register */
-		SET_BIT(TIM3->CCMR1 , 3);
-		SET_BIT(TIM3->CR1 , 7);
-	/* 5. Select the counting mode:
-	   a) PWM edge-aligned mode: the counter must be configured up-counting or downcounting
-	   b) PWM center aligned mode: the counter mode must be center aligned counting
-	   mode (CMS bits different from '00'). */
-		TIM3->CR1 &= ~0x60;  // PWM edge-aligned mode
-		CLR_BIT(TIM3->CR1 , 4); // up-counting
-	/* 6. Enable the capture compare */
-		SET_BIT(TIM3->CCER , 0);
-	/* 7. Enable the counter. */
-		TIM3->CNT =0 ; 			// Clear timer counter
-		SET_BIT(TIM3->CR1 , 0);
-
-		//while(TIM3->SR & 1);
-		//CLR_BIT(TIM3->SR , 0);
-}
-
-
-
-
-
-/*
-u16 MTIM_u16CountEvents(void)
-{
-
-}
-
-*/
-
-
-
-
-
-
+} // end the IRQ
 
