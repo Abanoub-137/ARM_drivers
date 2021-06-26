@@ -68,19 +68,19 @@ static void HTFT_voidBounders(u8 x1, u8 x2, u8 y1, u8 y2)
 void HTFT_voidInit(void)
 {
 	/*Reset Pulse */
-	MGPIO_voidSetPinValue(TFT_RST_PIN,GPIO_U8_HIGH);
+	MGPIO_voidSetPinValue(TFT_RST_PIN,GPIO_PIN_HIGH);
 	MSTK_voidSetBusyWait(100);
 
-	MGPIO_voidSetPinValue(TFT_RST_PIN,GPIO_U8_LOW);
+	MGPIO_voidSetPinValue(TFT_RST_PIN,GPIO_PIN_LOW);
 	MSTK_voidSetBusyWait(1);
 
-	MGPIO_voidSetPinValue(TFT_RST_PIN,GPIO_U8_HIGH);
+	MGPIO_voidSetPinValue(TFT_RST_PIN,GPIO_PIN_HIGH);
 	MSTK_voidSetBusyWait(100);
 
-	MGPIO_voidSetPinValue(TFT_RST_PIN,GPIO_U8_LOW);
+	MGPIO_voidSetPinValue(TFT_RST_PIN,GPIO_PIN_LOW);
 	MSTK_voidSetBusyWait(100);
 
-	MGPIO_voidSetPinValue(TFT_RST_PIN,GPIO_U8_HIGH);
+	MGPIO_voidSetPinValue(TFT_RST_PIN,GPIO_PIN_HIGH);
 	MSTK_voidSetBusyWait(120000);
 
 	/*Sleep out command*/
@@ -132,7 +132,7 @@ static void voidWriteCommand(u8 Copy_u8Command)
 {
 	u8 Local_u8Temp;
 	/*Set A0 pin to low*/
-	MGPIO_voidSetPinValue(TFT_A0_PIN,GPIO_U8_LOW);
+	MGPIO_voidSetPinValue(TFT_A0_PIN,GPIO_PIN_LOW);
 	/*Send commend over SPI*/
 	MSPI1_voidSendReceiveSynch(Copy_u8Command,&Local_u8Temp);
 }
@@ -142,7 +142,7 @@ static void voidWriteData(u8 Copy_u8Data)
 {
 	u8 Local_u8Temp;
 	/*Set A0 pin to High*/
-	MGPIO_voidSetPinValue(TFT_A0_PIN,GPIO_U8_HIGH);
+	MGPIO_voidSetPinValue(TFT_A0_PIN,GPIO_PIN_HIGH);
 	/*Send DATA over SPI*/
 	MSPI1_voidSendReceiveSynch(Copy_u8Data,&Local_u8Temp);
 }

@@ -11,8 +11,8 @@
 #define TFT_CONFIG_H_
 
 /*Write Pin in pair port , pin */
-#define TFT_A0_PIN     GPIO_U8_A,GPIO_U8_PIN2
-#define TFT_RST_PIN    GPIO_U8_A,GPIO_U8_PIN1
+#define TFT_A0_PIN     GPIO_PORTA,GPIO_PIN2
+#define TFT_RST_PIN    GPIO_PORTA,GPIO_PIN1
 
 /* typing on screen defines */
 /* max pixel length is 15  */
