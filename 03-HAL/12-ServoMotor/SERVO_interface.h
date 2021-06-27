@@ -14,6 +14,12 @@
 #define TIM4_CHANNEL_3			2
 #define TIM4_CHANNEL_4			3
 
+/* Macros */
+#define SERVO_CHANNEL_1				TIM4_CHANNEL_1
+#define SERVO_CHANNEL_2 			TIM4_CHANNEL_2
+#define SERVO_CHANNEL_3 			TIM4_CHANNEL_3
+#define SERVO_CHANNEL_4 			TIM4_CHANNEL_4
+
 /***************************************************************************
  * 						HardWare connection
  *
@@ -23,15 +29,19 @@
  * 					SERVO_CHANNEL_3  -----> TIM4_CHANNEL_3 ( PB8 ),
  * 					SERVO_CHANNEL_4  -----> TIM4_CHANNEL_4 ( PB9 )
  */
-
-
-/* Macros */
-#define SERVO_CHANNEL_1				TIM4_CHANNEL_1
-#define SERVO_CHANNEL_2 			TIM4_CHANNEL_2
-#define SERVO_CHANNEL_3 			TIM4_CHANNEL_3
-#define SERVO_CHANNEL_4 			TIM4_CHANNEL_4
-
-/***********************************************************************
+/***************************************************************************
+						steps needed in main
+	
+	1) enable clock of the processor
+	2) enable clock of PORTB
+	3) enable clock of alternative function
+	4) enable clock of timer4 for PWM
+	5) set the pin configuration as AFIO (alternative function)
+	6) Enable the INT for TIM4
+	7) setup the priority of TIM4
+	
+*/
+/***************************************************************************
  * Description: # this function use TIM4 to generate PWM on its channels (we can use 4 Channels)
  * 					to control on servomotor angele
  *				# periodecity of this function mustn't exceed 20ms
