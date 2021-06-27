@@ -34,7 +34,8 @@
 /***********************************************************************
  * Description: # this function use TIM4 to generate PWM on its channels (we can use 4 Channels)
  * 					to control on servomotor angele
- *				# TIM4 No remap (TIM4_CH1/PB6, TIM4_CH2/PB7, TIM4_CH3/PB8, TIM4_CH4/PB9)
+ *				# periodecity of this function mustn't exceed 20ms
+					means you can not call this function more than one time every 20ms
  *
  * Inputs     :	Copy_u8Angle				value		: 0 ~ 180
  *

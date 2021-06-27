@@ -22,8 +22,7 @@ void main(void)
 	MRCC_voidEnableClock(RCC_APB2 , RCC_IOPB_EN);  	// enable clock of PORTB
 	MRCC_voidEnableClock(RCC_APB2 , RCC_AFIO_EN);	// enable clock of alternative function
 	MRCC_voidEnableClock(RCC_APB1 , RCC_TIM4_EN);	// enable clock of timer4 for PWM
-	MRCC_voidEnableClock(RCC_APB1 , RCC_TIM2_EN);  	// enable clock of timer2 for busy wait
-
+	
 	// pin configuration
 	MGPIO_voidSetPinDirection(GPIO_PORTB , GPIO_PIN6 , GPIO_OUTPUT_SPEED_50MHZ_AFPP); 	// PIN_B6 for output PWM_CH1
 	MGPIO_voidSetPinDirection(GPIO_PORTB , GPIO_PIN7 , GPIO_OUTPUT_SPEED_50MHZ_AFPP); 	// PIN_B7 for output PWM_CH2
